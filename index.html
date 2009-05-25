@@ -1,0 +1,129 @@
+<html>
+  <head>
+    <title>LastScrape GUI</title>
+  </head>
+  <body>
+    <h1>LastScrape GUI</h1>
+    <div style="font-style:italic;">Built on <a href="http://ideas.libre.fm/index.php/Using_lastscrape">lastscrape</a> for <a href="http://libre.fm/">libre.fm</a>.</div>
+    <h2>Prerequisites</h2>
+    <div>You need PyQt4 installed (along with its dependencies, Python and Qt4)</div>
+    <div>A <tt>sudo apt-get install python-pyqt4</tt> should do the trick in Debian/Ubuntu, but I haven't tested with a clean install.</div>
+    <div>As for Windows, I intend to make an all-inclusive package after some testing/input from the libre.fm team.</div>
+    <h2>Installation</h2>
+    <div>You need these files:</div>
+    <ul>
+        <li><a href="gui.py">gui.py</a>, the GUI script,</li>
+        <li><a href="lastscrape.ui">lastscrape.ui</a>, the UI definition,</li>
+        <li><a href="gobble.py">gobble.py</a>, a slightly edited<sup>*)</sup> libre.fm gobbling script,</li>
+        <li><a href="lastscrape.py">lastscrape.py</a>, an edited<sup>*)</sup> version of the LastScrape script,</li>
+        <li><a href="BeautifulSoup.py">BeautifulSoup 3.0.7a</a>, just in case — the latest stable version does't work <a href="http://www.crummy.com/software/BeautifulSoup/3.1-problems.html">(as explained here)</a>,</li>
+        <li>You can also grab <a href="http://svn.savannah.gnu.org/viewvc/*checkout*/trunk/lastscrape/import.py?root=librefm">import.py</a> if you want the complete package, but the GUI doesn't use this.</li>
+        <li>And you should also receive a copy of the <a href="http://www.gnu.org/licenses/gpl.html">GNU General Public License</a> along with this program.</li>
+    </ul>
+    <h2>Usage</h2>
+    <div>Run <tt>python gui.py</tt> and follow the instructions.</div>
+    <div>Send a mail to <a href="mailto:encukou@gmail.com">encukou@gmail.com</a> if you have suggestions or encounter errors.</div>
+    <h2>Screenshot</h2>
+    <div><img src="scsh.png" /></div>
+    <div>(Note that I have an ugly QT4 skin. It should look much better in Windows, KDE4, or so.)</div>
+    <h2>Notes</h2>
+    <ul>
+        <li>The GUI version is slower than the command-line script when reading a file that was already downloaded. This is because of the cute editable table.</li>
+        <li>It's also slower when scraping, because I changed the time between page scrapes to one second (from 0.5s), as suggested <a href="http://www.last.fm/group/FREE+IS+FREE/forum/119932/_/517695/1#f8994378">here</a>.</li>
+    </ul>
+    <div>*) I needed an extra parameter for the long-running functions: a callback to use instead of <tt>time.wait</tt>, so the GUI thread wouldn't be blocked.</div>
+    <div>While I was at it, I also made lastscrape.py a bit more robust.</div>
+    <div>Instead of downloading the changed files from me, you can get the official ones (<a href="http://svn.savannah.gnu.org/viewvc/*checkout*/trunk/lastscrape/lastscrape.py?root=librefm">lastscrape.py</a>, <a href="http://svn.savannah.gnu.org/viewvc/*checkout*/trunk/scripts/gobble.py?root=librefm">gobble.py</a>) and apply the following patches:</div>
+<pre>
+--- lastscrape.orig     2009-05-24 19:24:35.000000000 +0200
++++ lastscrape.py       2009-05-24 19:34:45.000000000 +0200
+@@ -53,7 +53,7 @@
+         return (None, None, None)
+
+
+-def fetch_tracks(user, request_delay=0.5):
++def fetch_tracks(user, request_delay=0.5, sleep_func=time.sleep):
+     """Fetch all tracks from a profile page and return a list."""
+     url = 'http://last.fm/user/%s/tracks' % user
+     try:
+@@ -67,15 +67,20 @@
+     except:
+         num_pages = 1
+     for cur_page in range(1, num_pages + 1):
+-        try:
+-            tracks = parse_page(url + '?page=' + str(cur_page))
+-        except:
+-            time.sleep(1)
+-            tracks = parse_page(url + '?page=' + str(cur_page))
++        for interval in (1, 5, 10, 62):
++            try:
++                tracks = parse_page(url + '?page=' + str(cur_page))
++                break
++            except Exception, e:
++                last_exc = e
++                print "Exception occured, retrying in %ds: %s" % (interval, e)
++                sleep_func(interval)
++        else:
++            raise last_exc
+         for artist, track, timestamp in tracks:
+             yield (artist, track, timestamp)
+         if cur_page < num_pages:
+-            time.sleep(request_delay)
++            sleep_func(request_delay)
+
+
+ def main(*args):
+</pre>
+<pre>
+--- gobble.py   2009-05-24 21:01:10.000000000 +0200
++++ gobble.orig 2009-05-24 21:02:43.000000000 +0200
+@@ -46,7 +46,7 @@
+         self.session_id = lines[1]
+         self.submit_url = lines[3]
+
+-    def submit(self, sleep_func=time.sleep):
++    def submit(self):
+         if len(self.post_data) == 0:
+             return
+         i = 0
+@@ -59,12 +59,12 @@
+         if response != "OK\n":
+             raise GobbleException("Server returned: %s" % (response,))
+         self.post_data = []
+-        sleep_func(1)
++        time.sleep(1)
+
+-    def add_track(self, gobble_track, sleep_func=time.sleep):
++    def add_track(self, gobble_track):
+         i = len(self.post_data)
+         if i > 49:
+-            self.submit(sleep_func)
++            self.submit()
+             i = 0
+         self.post_data.append(gobble_track)
+
+</pre>
+<!-- Only the addition of the callback
+<pre>
+@@ -53,7 +53,7 @@
+         return (None, None, None)
+
+
+-def fetch_tracks(user, request_delay=0.5):
++def fetch_tracks(user, request_delay=0.5, sleep_func=time.sleep):
+     """Fetch all tracks from a profile page and return a list."""
+     url = 'http://last.fm/user/%s/tracks' % user
+     try:
+@@ -75,7 +75,7 @@
+         for artist, track, timestamp in tracks:
+             yield (artist, track, timestamp)
+         if cur_page &lt; num_pages:
+-            time.sleep(request_delay)
++            sleep_func(request_delay)
+
+
+ def main(*args):
+</pre>
+-->
+  </body>
+</html>
