@@ -1,0 +1,510 @@
+<ui version="4.0" >
+ <class>tvScrobbles1_2</class>
+ <widget class="QWidget" name="tvScrobbles1_2" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>629</width>
+    <height>465</height>
+   </rect>
+  </property>
+  <property name="windowTitle" >
+   <string>Lastscrape GUI</string>
+  </property>
+  <layout class="QGridLayout" >
+   <item row="0" column="0" >
+    <widget class="QTabWidget" name="twTabs" >
+     <property name="tabPosition" >
+      <enum>QTabWidget::South</enum>
+     </property>
+     <property name="currentIndex" >
+      <number>3</number>
+     </property>
+     <widget class="QWidget" name="tabInfo" >
+      <attribute name="title" >
+       <string>Info</string>
+      </attribute>
+      <layout class="QGridLayout" >
+       <item row="0" column="0" colspan="3" >
+        <widget class="QLabel" name="label" >
+         <property name="text" >
+          <string>Welcome to Lastscrape GUI!</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0" colspan="5" >
+        <widget class="QLabel" name="label_2" >
+         <property name="text" >
+          <string>This little gizmo lets you grab your listening history from last.fm and store it on your computer or upload it to another place – libre.fm, say.</string>
+         </property>
+         <property name="alignment" >
+          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+         </property>
+         <property name="wordWrap" >
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0" colspan="5" >
+        <widget class="QLabel" name="label_3" >
+         <property name="text" >
+          <string>To start, we'll need a few pieces of info from you:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="0" >
+        <widget class="QLabel" name="label_4" >
+         <property name="text" >
+          <string>Your last.fm nickname:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="2" colspan="3" >
+        <widget class="QLineEdit" name="txtUsername" >
+         <property name="text" >
+          <string/>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="0" colspan="2" >
+        <widget class="QLabel" name="label_5" >
+         <property name="text" >
+          <string>The file to which your listens will be saved:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="2" colspan="2" >
+        <widget class="QLineEdit" name="txtFilename" >
+         <property name="text" >
+          <string>listens.txt</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="4" >
+        <widget class="QPushButton" name="btnChangeFilename" >
+         <property name="text" >
+          <string>Change</string>
+         </property>
+        </widget>
+       </item>
+       <item row="5" column="0" colspan="5" >
+        <widget class="QLabel" name="label_16" >
+         <property name="text" >
+          <string>Note that we don't need your last.fm password, but your profile does have to be public.</string>
+         </property>
+         <property name="wordWrap" >
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="6" column="0" colspan="5" >
+        <widget class="QLabel" name="label_6" >
+         <property name="text" >
+          <string>This will take a while, because last.fm has some limits on accessing their pages automatically. After you click the button, go have a coffee or do something interesting. I wouldn't recommend listening to music though — sending more scrobbles to last.fm could confuse this program.</string>
+         </property>
+         <property name="alignment" >
+          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+         </property>
+         <property name="wordWrap" >
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="7" column="0" colspan="5" >
+        <layout class="QHBoxLayout" >
+         <item>
+          <spacer>
+           <property name="orientation" >
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" >
+            <size>
+             <width>151</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <widget class="QPushButton" name="btnGrab" >
+           <property name="text" >
+            <string>Grab the scrobbles!</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer>
+           <property name="orientation" >
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" >
+            <size>
+             <width>243</width>
+             <height>27</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </item>
+       <item row="8" column="1" >
+        <spacer>
+         <property name="orientation" >
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" >
+          <size>
+           <width>20</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="9" column="0" colspan="5" >
+        <widget class="QLabel" name="label_7" >
+         <property name="text" >
+          <string>If you've already done this (successfully), you can go directly to the cleanup section. The track list will be loaded from the file.</string>
+         </property>
+         <property name="wordWrap" >
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="10" column="0" colspan="3" >
+        <spacer>
+         <property name="orientation" >
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" >
+          <size>
+           <width>391</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="10" column="3" colspan="2" >
+        <widget class="QPushButton" name="btnToCleanup" >
+         <property name="text" >
+          <string>Read from file »</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tabGrab" >
+      <attribute name="title" >
+       <string>Grab</string>
+      </attribute>
+      <layout class="QGridLayout" >
+       <item row="0" column="0" >
+        <widget class="QLabel" name="label_8" >
+         <property name="text" >
+          <string>You're now at level 2. There's not much to do here, unless you enjoy watching your entire listening history unfold before your eyes (which is sort of cool in its own way).</string>
+         </property>
+         <property name="wordWrap" >
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0" >
+        <widget class="QLabel" name="label_9" >
+         <property name="text" >
+          <string>Last Scraped Tracks:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="6" column="0" >
+        <widget class="QLabel" name="label_11" >
+         <property name="text" >
+          <string>When it's all done, the next page will open automatically.</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0" >
+        <widget class="QTreeView" name="tvScrobbles1" >
+         <property name="uniformRowHeights" >
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="0" >
+        <widget class="QLabel" name="lblScrapeStatus" >
+         <property name="text" >
+          <string>TextLabel</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tabCleanup" >
+      <attribute name="title" >
+       <string>Clean up</string>
+      </attribute>
+      <layout class="QVBoxLayout" >
+       <item>
+        <widget class="QLabel" name="label_12" >
+         <property name="text" >
+          <string>And here they are — all of your scrobbles in a nice list. Look at them, admire them, and if something's wrong, fix them.</string>
+         </property>
+         <property name="wordWrap" >
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QTreeView" name="tvScrobbles2" >
+         <property name="uniformRowHeights" >
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="label_10" >
+         <property name="text" >
+          <string>(If you need more control, click Save, then exit this program and edit your file directly.)</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" >
+         <item>
+          <widget class="QProgressBar" name="bpLoad" >
+           <property name="sizePolicy" >
+            <sizepolicy vsizetype="Fixed" hsizetype="Expanding" >
+             <horstretch>10</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="maximum" >
+            <number>0</number>
+           </property>
+           <property name="value" >
+            <number>-1</number>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="lblCleanupStatus" >
+           <property name="sizePolicy" >
+            <sizepolicy vsizetype="Preferred" hsizetype="Expanding" >
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="text" >
+            <string>...</string>
+           </property>
+           <property name="alignment" >
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           </property>
+           <property name="wordWrap" >
+            <bool>false</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="btnSave" >
+           <property name="text" >
+            <string>Save »</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tabPush" >
+      <attribute name="title" >
+       <string>Push</string>
+      </attribute>
+      <layout class="QGridLayout" >
+       <item row="0" column="0" colspan="2" >
+        <widget class="QLabel" name="label_14" >
+         <property name="text" >
+          <string>Now you have your scrobbles on your computer. Sitting there. It would be much more fun if you could push them somewhere for the world to see, wouldn't it? After all, that's what this program is ultimately for...</string>
+         </property>
+         <property name="wordWrap" >
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0" >
+        <widget class="QLabel" name="label_15" >
+         <property name="sizePolicy" >
+          <sizepolicy vsizetype="Preferred" hsizetype="Expanding" >
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="text" >
+          <string>Push to</string>
+         </property>
+         <property name="alignment" >
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1" >
+        <widget class="QComboBox" name="cbServer" >
+         <property name="editable" >
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0" >
+        <widget class="QLabel" name="label_17" >
+         <property name="text" >
+          <string>Your nickname there</string>
+         </property>
+         <property name="alignment" >
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="1" >
+        <widget class="QLineEdit" name="txtLibreUsername" >
+         <property name="text" >
+          <string/>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="0" >
+        <widget class="QLabel" name="label_18" >
+         <property name="text" >
+          <string>And your password</string>
+         </property>
+         <property name="alignment" >
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="1" >
+        <widget class="QLineEdit" name="txtLibrePassword" >
+         <property name="text" >
+          <string/>
+         </property>
+         <property name="echoMode" >
+          <enum>QLineEdit::Password</enum>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="0" colspan="2" >
+        <layout class="QHBoxLayout" >
+         <item>
+          <spacer>
+           <property name="orientation" >
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" >
+            <size>
+             <width>181</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <widget class="QPushButton" name="btnImport" >
+           <property name="text" >
+            <string>Go!</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer>
+           <property name="orientation" >
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" >
+            <size>
+             <width>241</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </item>
+       <item row="6" column="0" colspan="2" >
+        <widget class="QTreeView" name="tvScrobbles3" >
+         <property name="uniformRowHeights" >
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="7" column="0" colspan="2" >
+        <widget class="QProgressBar" name="pgUpload" >
+         <property name="value" >
+          <number>0</number>
+         </property>
+        </widget>
+       </item>
+       <item row="8" column="0" colspan="2" >
+        <widget class="QLabel" name="lblUploadProgress" >
+         <property name="text" >
+          <string/>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tabCredits" >
+      <attribute name="title" >
+       <string>Credits</string>
+      </attribute>
+      <layout class="QGridLayout" >
+       <item row="0" column="0" >
+        <widget class="QLabel" name="label_21" >
+         <property name="text" >
+          <string>Libre.fm is made by the gentlemen and ladies listed at http://libre.fm/contributors.</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0" >
+        <widget class="QLabel" name="label_22" >
+         <property name="text" >
+          <string>This intrerface for the lastscrape scripts was made by Petr Viktorin &lt;encukou>, and is provided to you, like the rest of last.fm, under the GNU General Public License.</string>
+         </property>
+         <property name="wordWrap" >
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0" >
+        <widget class="QLabel" name="label_23" >
+         <property name="text" >
+          <string>This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along with this program.  If not, see &lt;http://www.gnu.org/licenses/>.</string>
+         </property>
+         <property name="wordWrap" >
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="0" >
+        <spacer>
+         <property name="orientation" >
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" >
+          <size>
+           <width>20</width>
+           <height>111</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

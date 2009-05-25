@@ -46,7 +46,7 @@ class GobbleServer(object):
         self.session_id = lines[1]
         self.submit_url = lines[3]
 
-    def submit(self):
+    def submit(self, sleep_func=time.sleep):
         if len(self.post_data) == 0:
             return
         i = 0
@@ -59,12 +59,12 @@ class GobbleServer(object):
         if response != "OK\n":
             raise GobbleException("Server returned: %s" % (response,))
         self.post_data = []
-        time.sleep(1)
+        sleep_func(1)
 
-    def add_track(self, gobble_track):
+    def add_track(self, gobble_track, sleep_func=time.sleep):
         i = len(self.post_data)
         if i > 49:
-            self.submit()
+            self.submit(sleep_func)
             i = 0
         self.post_data.append(gobble_track)
 

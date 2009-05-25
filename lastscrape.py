@@ -53,7 +53,7 @@ def parse_track(row):
         return (None, None, None)
 
 
-def fetch_tracks(user, request_delay=0.5):
+def fetch_tracks(user, request_delay=0.5, sleep_func=time.sleep):
     """Fetch all tracks from a profile page and return a list."""
     url = 'http://last.fm/user/%s/tracks' % user
     try:
@@ -67,15 +67,20 @@ def fetch_tracks(user, request_delay=0.5):
     except:
         num_pages = 1
     for cur_page in range(1, num_pages + 1):
-        try:
-            tracks = parse_page(url + '?page=' + str(cur_page))
-        except:
-            time.sleep(1)
-            tracks = parse_page(url + '?page=' + str(cur_page))
+        for interval in (1, 5, 10, 62):
+            try:
+                tracks = parse_page(url + '?page=' + str(cur_page))
+                break
+            except Exception, e:
+                last_exc = e
+                print "Exception occured, retrying in %ds: %s" % (interval, e)
+                sleep_func(interval)
+        else:
+            raise last_exc
         for artist, track, timestamp in tracks:
             yield (artist, track, timestamp)
         if cur_page < num_pages:
-            time.sleep(request_delay)
+            sleep_func(request_delay)
 
 
 def main(*args):
