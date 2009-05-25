@@ -3,3 +3,7 @@ listens-most.txt
 listens-rest.txt
 listens.txt
 scrape.txt
+build
+dist
+lastscrape-win32
+lastscrape-win32.zip
