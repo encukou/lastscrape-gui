@@ -4,15 +4,6 @@ from distutils.core import setup
 import py2exe
 import os
 
-dllList = ('msvcp90.dll')
-
-origIsSystemDLL = py2exe.build_exe.isSystemDLL
-def isSystemDLL(pathname):
-       if os.path.basename(pathname).lower() in dllList:
-               return 0
-       return origIsSystemDLL(pathname)
-py2exe.build_exe.isSystemDLL = isSystemDLL
-
 setup(
     name='LastScrape GUI',
     version='0.1',
@@ -36,5 +27,5 @@ setup(
         },
     ),
     package_dir={'lastscrape': ''},
-    data_files=[ ("",["lastscrape.ui"])]
+    data_files=[ ("",["lastscrape.ui", "vcredist_x86.exe"])]
 )

@@ -31,6 +31,8 @@ import gobble
 from datetime import datetime
 import collections
 
+__version__ = '0.0.3'
+
 def report_error(backtrace):
         errordialog = QtGui.QDialog()
         layout = QtGui.QVBoxLayout(errordialog)
@@ -63,11 +65,11 @@ def errors_reported(func):
 class MainWindow(QtGui.QWidget):
     def __init__(self):
         QtGui.QWidget.__init__(self)
-        self.setWindowTitle("LastScrape GUI 0.1")
         self.worker = None
         self.uploader = None
         self.cancel_loads = lambda:None
         uic.loadUi('lastscrape.ui', self)
+        self.setWindowTitle("LastScrape GUI "+__version__)
         #self.connect(self.btnChangeFilename,
         #            QtCore.SIGNAL('clicked()'),
         #            self.changeFilename)
