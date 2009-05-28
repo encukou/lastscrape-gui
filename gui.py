@@ -31,7 +31,7 @@ import gobble
 from datetime import datetime
 import collections
 
-__version__ = '0.0.3'
+__version__ = '0.0.4'
 
 def report_error(backtrace):
         errordialog = QtGui.QDialog()

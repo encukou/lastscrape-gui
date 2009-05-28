@@ -1,10 +1,7 @@
-listens-all.txt
-listens-most.txt
-listens-rest.txt
-listens.txt
 scrape.txt
 build
 dist
-lastscrape-win32
-lastscrape-win32.zip
-lastscrape.tgz
+lastscrape-*.tgz
+lastscrape-win32-*.zip
+listens.txt
+listens-*.txt
