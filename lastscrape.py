@@ -31,11 +31,13 @@ def parse_page(page):
     """Parse a page of recently listened tracks and return a list."""
     soup = BeautifulSoup(urllib2.urlopen(page),
                          convertEntities=BeautifulSoup.HTML_ENTITIES)
+    result = []
     for row in soup.find('table', 'candyStriped tracklist').findAll('tr'):
         artist, track, timestamp = parse_track(row)
         # Tracks submitted before 2005 have no timestamp
         if artist and track:
-            yield (artist, track, timestamp)
+            result += [(artist, track, timestamp)]
+    return result
 
 
 def parse_track(row):
