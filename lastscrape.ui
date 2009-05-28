@@ -465,7 +465,7 @@
        <item row="1" column="0" >
         <widget class="QLabel" name="label_22" >
          <property name="text" >
-          <string>This intrerface for the lastscrape scripts was made by Petr Viktorin &lt;encukou>, and is provided to you, like the rest of last.fm, under the GNU General Public License.</string>
+             <string>This intrerface for the lastscrape scripts was made by Petr Viktorin &lt;encukou>, and is provided to you, like the rest of lastscrape, under the GNU General Public License.</string>
          </property>
          <property name="wordWrap" >
           <bool>true</bool>
