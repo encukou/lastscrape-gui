@@ -5,16 +5,16 @@
   </head>
   <body>
     <h1>LastScrape GUI (beta)</h1>
-    <div style="font-style:italic;">Built on <a href="http://ideas.libre.fm/index.php/Using_lastscrape">lastscrape</a> for <a href="http://libre.fm/">libre.fm</a>.</div>
-    <div>(This page is temporary. If you have a better home for Lastscrape, contact me)</div>
-    <div>This is version <i>0.0.4</i> of the lastscrape GUI.</div>
+    <div>LastScrape is a program that takes your scrobbles from <a href="http://last.fm">last.fm</a> and lets you save them to your computer or push to another service, like <a href="http://libre.fm/">libre.fm</a>.</div>
+    <div style="font-style:italic;">Built on libre.fm's <a href="http://ideas.libre.fm/index.php/Using_lastscrape">lastscrape</a> scripts.</div>
+    <div>This is version <i>0.0.5</i> of the lastscrape GUI.</div>
     <h2>Announcements</h2>
-    <div>2010-09-25: According to an user named semente, Lastscrape does not work unless you disable the “Hide real-time listening information” option in your last.fm configuration. So, disable it before scraping.</div>
+    <div>2011-03-28: Moved to Github. Version 0.0.5 released: fixed a bug caused by a recent last.fm update.</div>
     <h2>Quick Guide</h2>
     <h3>Windows</h3>
     <ol>
-        <li>Adjust your last.fm settings according to the Announcements above.</li>
-        <li>Download <a href="lastscrape-win32-0.0.4.zip">the package</a> (10 MB).</li>
+        <li>Lastscrape apparently does not work unless you disable the “Hide real-time listening information” option in your last.fm configuration. So, disable it before scraping.</li>
+        <li>Download the latest Windows package from <a href="https://github.com/encukou/lastscrape-gui/downloads">github</a>.</li>
         <li>Extract it somewhere.</li>
         <li>Run <tt>lastscrape.exe</tt> and follow the instructions.</li>
         <li>Tell me how it went! Please don't forget this step for the beta.</li>
@@ -33,17 +33,18 @@
                 <dd>Use your package manager, or build from source. Tell me how you did it afterwards, so I can update this page.</dd>
             </dl>
         </li>
-        <li>Adjust your last.fm settings according to the Announcements above.</li>
-        <li>Download <a href="lastscrape-0.0.4.tgz">the archive</a>.</li>
+        <li>Lastscrape apparently does not work unless you disable the “Hide real-time listening information” option in your last.fm configuration. So, disable it before scraping.</li>
+        <li>Download <a href="https://github.com/encukou/lastscrape-gui/tarball/master">the source archive</a> from github.</li>
         <li>Extract it somewhere.</li>
         <li>Run <tt>gui.py</tt> and follow the instructions.</li>
         <li>Tell me how it went! Please don't forget this step for the beta.</li>
     </ol>
     <h2>Screenshot</h2>
+    <div>Just so you know what you should be getting.</div>
     <div><img src="scsh.png" /></div>
-    <div>(Note that I have an ugly QT4 skin. It should look much better in Windows, KDE4, or so.)</div>
-    <h2>Get everything</h2>
-    <div>Run <tt>bzr branch http://encukou.cz/petr/lastscrapegui</tt> to get the whole thing, including the packaging scripts and webpage, if you want those.</div>
+    <h2>Get the source!</h2>
+    <div>Run <tt>git clone http://github.com/encukou/lastscrape-gui</tt> to get the source, including the packaging scripts and webpage, if you want those.</div>
+    <div><a href="https://github.com/encukou/lastscrape-gui">Fork me</a> on Github!</div>
     <h2>Notes</h2>
     <ul>
         <li>The GUI version is slower than the command-line script when reading a file that was already downloaded. This is because of the cute editable table.</li>

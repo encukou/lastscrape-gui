@@ -1,10 +1,9 @@
 
-This is a beta version. Follow the libre.fm mailing list for updates.
+This is a beta version.
 
 #
 # Lastscrape GUI -- GUI for Lascscrape
-# Copyright (C) 2009 Petr Viktorin
-# (copyright will be assigned to FSF as soon as the papers come...)
+# Copyright (C) 2009-2011 Petr Viktorin
 #
 # Lastscrape -- recovers data from libre.fm
 # Copyright (C) 2009 Free Software Foundation, Inc
@@ -66,6 +65,7 @@ Notes:
 
 Changelog:
 
+0.0.5 - Work around some invalid markup on last.fm
 0.0.4 - Make lastscrape.py more robust (by returning list instead of yielding tracks)
 0.0.3 - Windows packaging fix (uses python 2.5)
 0.0.2 - Windows package

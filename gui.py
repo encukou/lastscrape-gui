@@ -31,17 +31,21 @@ import gobble
 from datetime import datetime
 import collections
 
-__version__ = '0.0.4'
+__version__ = '0.0.5'
 
 def report_error(backtrace):
         errordialog = QtGui.QDialog()
         layout = QtGui.QVBoxLayout(errordialog)
         layout.addWidget(QtGui.QLabel(
-            u"We're sorry, but there was an error.\n"
-            u"If you report it, maybe it can be fixed.\n"
-            u"Just copy the text below and mail it to "
-            u"<encukou@gmail.com>:")) #Change this if we become part of libre.fm
+                u"We're sorry, but there was an error.\n"
+                u"If you report it at the adderss given below, "
+                u"maybe it can be fixed.\n"
+            ))
         textarea = QtGui.QTextEdit()
+        backtrace = ("\nPlease report the bug at:\n"
+                + " https://github.com/encukou/lastscrape-gui/issues\n\n"
+                + backtrace
+            )
         textarea.setText(backtrace)
         textarea.setReadOnly(True)
         layout.addWidget(textarea)
