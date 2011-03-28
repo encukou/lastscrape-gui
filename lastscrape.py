@@ -27,10 +27,16 @@ from BeautifulSoup import BeautifulSoup
 
 sys.stdout = codecs.lookup('utf-8')[-1](sys.stdout)
 
+def make_soup(url):
+    contents = urllib2.urlopen(url).read()
+    # remove an invalid IE workaround comment
+    contents = contents.replace('<!–[if IE]><![endif]–>', '')
+    return BeautifulSoup(contents,
+                         convertEntities=BeautifulSoup.HTML_ENTITIES)
+
 def parse_page(page):
     """Parse a page of recently listened tracks and return a list."""
-    soup = BeautifulSoup(urllib2.urlopen(page),
-                         convertEntities=BeautifulSoup.HTML_ENTITIES)
+    soup = make_soup(page)
     result = []
     for row in soup.find('table', 'candyStriped tracklist').findAll('tr'):
         artist, track, timestamp = parse_track(row)
@@ -62,8 +68,7 @@ def fetch_tracks(user, request_delay=0.5, sleep_func=time.sleep):
         f = urllib2.urlopen(url)
     except urllib2.HTTPError:
         raise Exception("Username probably does not exist.")
-    soup = BeautifulSoup(urllib2.urlopen(url),
-                         convertEntities=BeautifulSoup.HTML_ENTITIES)
+    soup = make_soup(url)
     try:
         num_pages = int(soup.find('a', 'lastpage').contents[0])
     except:
