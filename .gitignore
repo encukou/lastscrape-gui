@@ -5,3 +5,5 @@ lastscrape-*.tgz
 lastscrape-win32-*.zip
 listens.txt
 listens-*.txt
+*.pyc
+
