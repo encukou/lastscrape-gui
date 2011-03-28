@@ -41,7 +41,7 @@ def get_options(parser):
          
     return options.username, options.outfile, options.startpage, options.server
 
-def connect_server(username, startpage):
+def connect_server(server, username, startpage):
     """ Connect to server and get a XML page."""
     if server == "libre.fm":
         baseurl = 'http://alpha.libre.fm/2.0/?'
@@ -89,9 +89,9 @@ def get_tracklist(response):
     tracklist = xmlpage.getElementsByTagName('track')
     return tracklist
 
-def parse_track(tracklist, i):
+def parse_track(trackelement):
     """Extract info from every track entry and output to list."""
-    track = tracklist[i].getElementsByTagName
+    track = trackelement.getElementsByTagName
     try:
         artistname = track('artist')[0].childNodes[0].data
     except:
@@ -125,57 +125,56 @@ def parse_track(tracklist, i):
 
     return output
 
-def write_tracks(trackdict, outfile, startpage, page, totalpages):
-    """Write dictionary content with all tracks to file."""
-    #create a sorted list from track dictionary.
-    sortlist = []
-    for v in trackdict.values():
-        sortlist.append(v)
-    sortlist.sort(reverse=True)
+def write_tracks(tracks, outfileobj):
+    """Write tracks to an open file"""
+    for fields in tracks:
+        outfileobj.write(("\t".join(fields) + "\n").encode('utf-8'))
 
-    #open output file and write tracks.
-    f = open(outfile, 'a')
-    for i in sortlist:
-        #sys.stdout.write(("\t".join(trackdict[i]) + "\n").encode('utf-8'))
-        f.write(("\t".join(i) + "\n").encode('utf-8'))
-    print "Wrote page %s-%s of %s to file %s, exiting." % (startpage, page, totalpages, outfile)
-    f.close()
-
-def main(username, startpage, outfile):
-    trackdict = dict()
+def get_tracks(server, username, startpage=1, sleep_func=time.sleep):
     page = startpage
-    response = connect_server(username, page)
+    response = connect_server(server, username, page)
     totalpages = get_pageinfo(response)
-    #totalpages = 2
 
     if startpage > totalpages:
-        sys.exit("First page (%s) is higher than total pages (%s), exiting." % (startpage, totalpages))
+        raise ValueError("First page (%s) is higher than total pages (%s)." % (startpage, totalpages))
 
     while page <= totalpages:
         #Skip connect if on first page, already have that one stored.
         if page > startpage:
-            response =  connect_server(username, page)
+            response =  connect_server(server, username, page)
             #If empty response, something went wrong, write tracks to file and exit.
             if not response:
-                write_tracks(trackdict, outfile, startpage, page-1, totalpages)
-                sys.exit()
+                raise Exception('Empty response')
 
         tracklist = get_tracklist(response)
-        for i in range(len(tracklist)):
-            track = parse_track(tracklist, i)
-            trackdict.setdefault(track[0], track)
-        
-        if (page % 10) == 0:
-            print "Getting page %s of %s.." % (page, totalpages)
+        tracks = [parse_track(trackelement) for trackelement in tracklist]
+
+        yield page, totalpages, tracks
 
         page += 1
-        time.sleep(.5)
-    
+        sleep_func(.5)
 
-    write_tracks(trackdict, outfile, startpage, page-1, totalpages)
+def main(server, username, startpage, outfile):
+    trackdict = dict()
+    page = startpage  # for case of exception
+    totalpages = -1  # ditto
+    try:
+        for page, totalpages, tracks in get_tracks(server, username, startpage):
+            print "Got page %s of %s.." % (page, totalpages)
+            for track in tracks:
+                trackdict.setdefault(track[0], track)
+    except ValueError, e:
+        exit(e)
+    except Exception:
+        raise
+    finally:
+        with open(outfile, 'a') as outfileobj:
+            tracks = sorted(trackdict.values(), reverse=True)
+            write_tracks(tracks, outfileobj)
+            print "Wrote page %s-%s of %s to file %s" % (startpage, page, totalpages, outfile)
 
 if __name__ == "__main__":
     parser = OptionParser()
     username, outfile, startpage, server = get_options(parser)
-    main(username, startpage, outfile)
+    main(server, username, startpage, outfile)
 
