@@ -46,9 +46,8 @@ import.py - the CLI script, the GUI doesn't use this.
 
 setup.py - A setup script. You probably don't want to install a one-shot script like this, but it's used in making the package
 windist.py - Batchfile to make the Windows package. Uses py2exe and 7zip.
-Makefile - Used for making the tarball.
 __init__.py - Empty file that makes this a Python package.
-You should also receive get copy of the GNU General Public License from http://www.gnu.org/licenses/gpl.html
+You should also receive a copy of the GNU General Public License from http://www.gnu.org/licenses/gpl.html
 
 index.html - The homepage
 scsh.png - A screenshot
