@@ -24,6 +24,8 @@ import urllib2, urllib, sys, time, re
 from xml.dom import minidom
 from optparse import OptionParser
 
+__version__ = '0.0.1'
+
 def get_options(parser):
     """ Define command line options."""
     parser.add_option("-u", "--user", dest="username", default=None,
@@ -46,7 +48,7 @@ def connect_server(server, username, startpage, sleep_func=time.sleep):
     if server == "libre.fm":
         baseurl = 'http://alpha.libre.fm/2.0/?'
         urlvars = dict(method='user.getrecenttracks',
-                    api_key='ohaiderthisisthelastexportscript',
+                    api_key=('lastexport.py-%s' % __version__).ljust(32, '-'),
                     user=username,
                     page=startpage,
                     limit=200)
