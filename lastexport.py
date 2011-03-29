@@ -41,7 +41,7 @@ def get_options(parser):
          
     return options.username, options.outfile, options.startpage, options.server
 
-def connect_server(server, username, startpage):
+def connect_server(server, username, startpage, sleep_func=time.sleep):
     """ Connect to server and get a XML page."""
     if server == "libre.fm":
         baseurl = 'http://alpha.libre.fm/2.0/?'
@@ -63,12 +63,17 @@ def connect_server(server, username, startpage):
 
 
     url = baseurl + urllib.urlencode(urlvars)
-    try:
-        f = urllib2.urlopen(url)
-    except:
+    for interval in (1, 5, 10, 62):
+        try:
+            f = urllib2.urlopen(url)
+            break
+        except Exception, e:
+            last_exc = e
+            print "Exception occured, retrying in %ds: %s" % (interval, e)
+            sleep_func(interval)
+    else:
         print "Failed to open page %s" % urlvars['page']
-        response = None
-        return response
+        raise last_exc
 
     response = f.read()
     f.close()
@@ -132,7 +137,7 @@ def write_tracks(tracks, outfileobj):
 
 def get_tracks(server, username, startpage=1, sleep_func=time.sleep):
     page = startpage
-    response = connect_server(server, username, page)
+    response = connect_server(server, username, page, sleep_func)
     totalpages = get_pageinfo(response)
 
     if startpage > totalpages:
@@ -140,11 +145,9 @@ def get_tracks(server, username, startpage=1, sleep_func=time.sleep):
 
     while page <= totalpages:
         #Skip connect if on first page, already have that one stored.
+
         if page > startpage:
-            response =  connect_server(server, username, page)
-            #If empty response, something went wrong, write tracks to file and exit.
-            if not response:
-                raise Exception('Empty response')
+            response =  connect_server(server, username, page, sleep_func)
 
         tracklist = get_tracklist(response)
         tracks = [parse_track(trackelement) for trackelement in tracklist]
