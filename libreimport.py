@@ -1,5 +1,7 @@
 #!/usr/bin/python
-#
+
+#modified version of old import.py
+
 # Lastscrape -- recovers data from libre.fm
 # Copyright (C) 2009 Free Software Foundation, Inc
 #
@@ -23,7 +25,7 @@ sys.path.append(os.path.join(sys.path[0], '../scripts'))
 
 from datetime import datetime
 import getpass
-from gobble import get_parser, GobbleServer, GobbleTrack
+from scrobble import get_parser, ScrobbleServer, ScrobbleTrack
 import time
 from urllib import urlencode
 from urllib2 import urlopen
@@ -39,11 +41,13 @@ if __name__ == '__main__':
     username,data = args
     server = opts.server
     password = getpass.getpass()
-    gobbler = GobbleServer(server, username, password)
+    scrobbler = ScrobbleServer(server, username, password)
 
+    n = 0
     for line in file(data):
-        artist,track,timestamp = line.strip().split("\t")
-        dt = datetime.strptime(timestamp, "%Y-%m-%dT%H:%M:%SZ")
-        gobbler.add_track(GobbleTrack(artist, track, dt))
-        print "Adding to post %s playing %s" % (artist, track)
-    gobbler.submit()
+        n = n + 1
+        timestamp, track, artist, album, trackmbid, artistmbid, albummbid = line.strip("\n").split("\t")
+        #submission protocol doesnt specify artist/album mbid, so we dont send them
+        scrobbler.add_track(ScrobbleTrack(timestamp, track, artist, album, trackmbid))
+        print "%d: Adding to post %s playing %s" % (n, artist, track)
+    scrobbler.submit()

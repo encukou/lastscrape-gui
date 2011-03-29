@@ -1,3 +1,4 @@
+#modified version of old gobble.py
 try:
     import hashlib
     md5hash = hashlib.md5
@@ -10,12 +11,12 @@ from urllib import urlencode
 from urllib2 import urlopen
 
 
-class GobbleException(Exception):
+class ScrobbleException(Exception):
 
     pass
 
 
-class GobbleServer(object):
+class ScrobbleServer(object):
 
     def __init__(self, server_name, username, password, client_code='imp'):
         if server_name[:7] != "http://":
@@ -42,7 +43,7 @@ class GobbleServer(object):
         response = urlopen(auth_url).read()
         lines = response.split("\n")
         if lines[0] != "OK":
-            raise GobbleException("Server returned: %s" % (response,))
+            raise ScrobbleException("Server returned: %s" % (response,))
         self.session_id = lines[1]
         self.submit_url = lines[3]
 
@@ -57,43 +58,43 @@ class GobbleServer(object):
         data += [('s', self.session_id)]
         response = urlopen(self.submit_url, urlencode(data)).read()
         if response != "OK\n":
-            raise GobbleException("Server returned: %s" % (response,))
+            raise ScrobbleException("Server returned: %s" % (response,))
         self.post_data = []
         sleep_func(1)
 
-    def add_track(self, gobble_track, sleep_func=time.sleep):
+    def add_track(self, scrobble_track, sleep_func=time.sleep):
         i = len(self.post_data)
         if i > 49:
             self.submit(sleep_func)
             i = 0
-        self.post_data.append(gobble_track)
+        self.post_data.append(scrobble_track)
 
 
-class GobbleTrack(object):
+class ScrobbleTrack(object):
 
-    def __init__(self, artist, track, timestamp, album=None, length=None,
-                 tracknumber=None, mbid=None):
-        self.artist = artist
-        self.track = track
+    def __init__(self, timestamp, trackname, artistname, albumname=None,
+                 trackmbid=None, tracklength=None, tracknumber=None):
         self.timestamp = timestamp
-        self.album = album
-        self.length = length
+        self.trackname = trackname
+        self.artistname = artistname
+        self.albumname = albumname
+        self.trackmbid = trackmbid
+        self.tracklength = tracklength
         self.tracknumber = tracknumber
-        self.mbid = mbid
 
     def get_tuples(self, i):
-        timestamp = str(int(time.mktime(self.timestamp.utctimetuple())))
+        #timestamp = str(int(time.mktime(self.timestamp.utctimetuple())))
         data = []
-        data += [('a[%d]' % i, self.artist), ('t[%d]' % i, self.track),
-                 ('i[%d]' % i, timestamp)]
-        if self.album is not None:
-            data.append(('b[%d]' % i, self.album))
-        if self.length is not None:
-            data.append(('l[%d]' % i, self.length))
+        data += [('i[%d]' % i, self.timestamp), ('t[%d]' % i, self.trackname),
+                 ('a[%d]' % i, self.artistname)]
+        if self.albumname is not None:
+            data.append(('b[%d]' % i, self.albumname))
+        if self.trackmbid is not None:
+            data.append(('m[%d]' % i, self.trackmbid))
+        if self.tracklength is not None:
+            data.append(('l[%d]' % i, self.tracklength))
         if self.tracknumber is not None:
             data.append(('n[%d]' % i, self.tracknumber))
-        if self.mbid is not None:
-            data.append(('m[%d]' % i, self.mbid))
         return data
 
 
