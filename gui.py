@@ -26,8 +26,8 @@
 import sys
 from PyQt4 import QtCore, QtGui, uic
 from PyQt4.Qt import Qt
-import lastscrape
-import gobble
+import lastexport
+import scrobble
 from datetime import datetime
 import collections
 
@@ -74,10 +74,7 @@ class MainWindow(QtGui.QWidget):
         self.cancel_loads = lambda:None
         uic.loadUi('lastscrape.ui', self)
         self.setWindowTitle("LastScrape GUI "+__version__)
-        #self.connect(self.btnChangeFilename,
-        #            QtCore.SIGNAL('clicked()'),
-        #            self.changeFilename)
-        self.scrobbles = TracksModel() #QtGui.QStandardItemModel(0, 3)
+        self.scrobbles = TracksModel()
         self.tvScrobbles1.setModel(self.scrobbles)
         self.tvScrobbles2.setModel(self.scrobbles)
         self.tvScrobbles3.setModel(self.scrobbles)
@@ -85,6 +82,8 @@ class MainWindow(QtGui.QWidget):
         self.twTabs.setCurrentWidget(self.tabInfo)
         self.cbServer.addItem('turtle.libre.fm')
         self.cbServer.addItem('turtle.dev.libre.fm')
+        self.cbScrapeSource.addItem('last.fm')
+        self.cbScrapeSource.addItem('libre.fm')
 
     def enableTabs(self, info=True, grab=False, cleanup=True, push=True, credits=True):
         self.twTabs.setTabEnabled(0, info)
@@ -121,7 +120,7 @@ class MainWindow(QtGui.QWidget):
         self.pgUpload.hide()
         self.bpLoad.show()
         self.twTabs.setCurrentWidget(self.tabGrab)
-        self.worker = worker = ScraperThread(username)
+        self.worker = worker = ScraperThread(username, self.cbScrapeSource.currentText())
         self.connect(worker, QtCore.SIGNAL("freshTracks"), self.add_tracks)
         self.connect(worker, QtCore.SIGNAL("error"), report_error)
         self.connect(worker, QtCore.SIGNAL("finished()"), self.worker_done)
@@ -132,6 +131,7 @@ class MainWindow(QtGui.QWidget):
         self.enableTabs()
         self.twTabs.setCurrentWidget(self.tabCleanup)
         self.bpLoad.hide()
+        self.saveToFile()
         self.lblCleanupStatus.setText(u"Done? Let's find them a new home.")
     def worker_killed(self):
         self.worker = None
@@ -156,11 +156,8 @@ class MainWindow(QtGui.QWidget):
         try:
             tracks = []
             for line in infile:
-                artist, track, timestamp = line.strip().split('\t')
-                artist = artist.decode('UTF-8')
-                track = track.decode('UTF-8')
-                dt = datetime.strptime(timestamp, "%Y-%m-%dT%H:%M:%SZ")
-                tracks.append( (artist, track, dt) )
+                track = line.strip('\r\n').decode('UTF-8').split('\t')
+                tracks.append( track )
                 if len(tracks)>=250:
                     QtGui.QApplication.processEvents()
                     if exiting[0]:
@@ -181,14 +178,13 @@ class MainWindow(QtGui.QWidget):
     @QtCore.pyqtSignature("")
     def on_btnSave_clicked(self, *args):
         if args: return
-        outfile = open(self.txtFilename.text(), 'w')
-        try:
-            for artist, track, timestamp in self.scrobbles.tracklist:
-                dt = timestamp.strftime('%Y-%m-%dT%H:%M:%SZ')
-                line = u'%s\t%s\t%s\n' % (artist, track, dt)
-                outfile.write(line.encode('utf-8'))
-        finally:
-            outfile.close()
+        self.saveToFile()
+
+    def saveToFile(self):
+        filename = self.txtFilename.text()
+        print 'Saving to %s' % self.txtFilename.text()
+        with open(filename, 'w') as outfile:
+            lastexport.write_tracks(self.scrobbles.tracklist, outfile)
         self.twTabs.setCurrentWidget(self.tabPush)
 
     @errors_reported
@@ -200,7 +196,7 @@ class MainWindow(QtGui.QWidget):
             server = unicode(self.cbServer.currentText())
             username = unicode(self.txtLibreUsername.text()).replace(' ','+')
             password = unicode(self.txtLibrePassword.text())
-            gobbler = gobble.GobbleServer(
+            scrobbler = scrobble.ScrobbleServer(
                     server_name = server,
                     username = username,
                     password = password,
@@ -211,7 +207,7 @@ class MainWindow(QtGui.QWidget):
                 u"server. Please check your username and password.\n\n" + 
                 str(e)[:256])
             return
-        self.uploader = uploader = PushThread(gobbler, self.scrobbles.tracklist)
+        self.uploader = uploader = PushThread(scrobbler, self.scrobbles.tracklist)
         self.connect(uploader, QtCore.SIGNAL("progress"),
                                self.uploader_progress)
         self.connect(uploader, QtCore.SIGNAL("error"), report_error)
@@ -243,13 +239,16 @@ class MainWindow(QtGui.QWidget):
     def add_tracks(self, tracks):
         if not tracks: return
         self.scrobbles.addTracks(tracks)
-        lasttime = self.scrobbles.tracklist[-1][2]
+        lasttime = self.scrobbles.tracklist[-1][0]
+        niceDate = QtCore.QDateTime.fromTime_t(int(lasttime)).toString()
         self.lblScrapeStatus.setText('Scraped %d tracks, last one from %s' %
-            (self.scrobbles.rowCount(), lasttime))
+            (self.scrobbles.rowCount(), niceDate))
         self.lblCleanupStatus.setText('Read %d tracks, last one from %s' %
-            (self.scrobbles.rowCount(), lasttime))
+            (self.scrobbles.rowCount(), niceDate))
 
 class TracksModel(QtCore.QAbstractTableModel):
+    columntitles = u"Time, Track name, Artist name, Album name, Track MBID, Artist MBID, Album MBID".split(',')
+
     def __init__(self):
         QtCore.QAbstractTableModel.__init__(self)
         self.tracklist = []
@@ -261,7 +260,7 @@ class TracksModel(QtCore.QAbstractTableModel):
 
     def columnCount(self, index=QtCore.QModelIndex()):
         if index.isValid(): return 0
-        return 3
+        return len(self.columntitles)
 
     def data(self, index, role = Qt.DisplayRole):
         if not index.isValid(): return QtCore.QVariant()
@@ -269,14 +268,15 @@ class TracksModel(QtCore.QAbstractTableModel):
         if role not in (Qt.DisplayRole, Qt.EditRole):
             return QtCore.QVariant()
         row = self.tracklist[index.row()]
-        if index.column() == 2:
-            return QtCore.QVariant(QtCore.QDateTime(row[2]))
-        return QtCore.QVariant(row[index.column()])
+        data = row[index.column()]
+        if index.column() == 0:
+            return QtCore.QVariant(QtCore.QDateTime.fromTime_t(int(data)))
+        return QtCore.QVariant(data)
 
     def headerData(self, section, orientation, role=Qt.DisplayRole):
         if orientation != Qt.Horizontal: return QtCore.QVariant()
         if role != Qt.DisplayRole: return QtCore.QVariant()
-        return QtCore.QVariant([u"Artist", u"Track", u"Time"][section])
+        return QtCore.QVariant(self.columntitles[section].strip())
 
     def setData(self, index, data, role=Qt.EditRole):
         if not index.isValid(): return False
@@ -285,17 +285,12 @@ class TracksModel(QtCore.QAbstractTableModel):
         row = index.row()
         column = index.column()
         track = self.tracklist[row]
-        if column == 2:
-            val = data.toDateTime().toPyDateTime()
-            newtrack = (track[0], track[1], val)
+        if column == 0:
+            val = unicode(data.toDateTime().toTime_t())
         else:
             val = unicode(data.toString())
-            if column == 0:
-                newtrack = (val, track[1], track[2])
-            else:
-                newtrack = (track[0], val, track[2])
         if val:
-            self.tracklist[row] = newtrack
+            track[column] = val
             self.emit(QtCore.SIGNAL('dataChanged(QModelIndex,QModelIndex)'),
                 index, index)
             return True
@@ -311,7 +306,10 @@ class TracksModel(QtCore.QAbstractTableModel):
     def addTracks(self, tracks_in):
         tracks = []
         for track in tracks_in:
-            if track[2] in self.dateset:
+            if len(track) != len(self.columntitles):
+                print track
+                raise AssertionError("%s items of information in track is not %s" % (len(track), len(self.columntitles)))
+            if track[0] in self.dateset:
                 print "Duplicate track: %s" % (track,)
             else:
                 tracks.append(track)
@@ -333,18 +331,19 @@ class TracksModel(QtCore.QAbstractTableModel):
                 Qt.ItemIsSelectable)
 
 class ScraperThread(QtCore.QThread):
-    def __init__(self, username, parent = None):
+    def __init__(self, username, server, parent = None):
         QtCore.QThread.__init__(self, parent)
         self.username = username
+        self.server = server
 
     def run(self):
         try:
-            for artist, track, timestamp in lastscrape.fetch_tracks(
+            for page, totalpages, tracks in lastexport.get_tracks(
+                    self.server,
                     self.username,
-                    request_delay=1,
-                    sleep_func=self.sleep):
-                dt = datetime.strptime(timestamp, "%Y-%m-%dT%H:%M:%SZ")
-                self.emit(QtCore.SIGNAL("freshTracks"), [(artist, track, dt)])
+                    sleep_func=lambda s: self.msleep(int(s * 1000)),
+                ):
+                self.emit(QtCore.SIGNAL("freshTracks"), tracks)
         except Exception, e:
             import traceback
             backtrace = traceback.format_exc(e)
@@ -352,19 +351,17 @@ class ScraperThread(QtCore.QThread):
             #break #simulate
 
 class PushThread(QtCore.QThread):
-    def __init__(self, gobbler, tracks, parent = None):
+    def __init__(self, scrobbler, tracks, parent = None):
         QtCore.QThread.__init__(self, parent)
-        self.gobbler = gobbler
+        self.scrobbler = scrobbler
         self.tracks = tracks
 
     def run(self):
         try:
-            for artist, track, dt in self.tracks:
-                artist = artist.encode('UTF-8')
-                track = track.encode('UTF-8')
-                self.gobbler.add_track(gobble.GobbleTrack(artist, track, dt))
-                self.emit(QtCore.SIGNAL("progress"), (artist, track, dt))
-            self.gobbler.submit()
+            for timestamp, trackname, artistname, albumname, trackmbid, artistmbid, albummbid in self.tracks:
+                self.scrobbler.add_track(scrobble.ScrobbleTrack(timestamp, trackname, artistname, albumname, trackmbid))
+                self.emit(QtCore.SIGNAL("progress"), (timestamp, trackname, artistname, albumname, trackmbid))
+            self.scrobbler.submit(sleep_func=lambda s: self.msleep(int(s * 1000)))
         except Exception, e:
             import traceback
             backtrace = traceback.format_exc(e)
