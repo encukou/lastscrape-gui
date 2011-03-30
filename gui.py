@@ -358,7 +358,9 @@ class PushThread(QtCore.QThread):
 
     def run(self):
         try:
-            for timestamp, trackname, artistname, albumname, trackmbid, artistmbid, albummbid in self.tracks:
+            for track in self.tracks:
+                track = [item.encode('utf-8') for item in track]
+                timestamp, trackname, artistname, albumname, trackmbid, artistmbid, albummbid = track
                 self.scrobbler.add_track(scrobble.ScrobbleTrack(timestamp, trackname, artistname, albumname, trackmbid))
                 self.emit(QtCore.SIGNAL("progress"), (timestamp, trackname, artistname, albumname, trackmbid))
             self.scrobbler.submit(sleep_func=lambda s: self.msleep(int(s * 1000)))
