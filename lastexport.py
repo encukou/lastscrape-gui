@@ -24,7 +24,7 @@ import urllib2, urllib, sys, time, re
 from xml.dom import minidom
 from optparse import OptionParser
 
-__version__ = '0.0.1'
+__version__ = '0.0.2'
 
 def get_options(parser):
     """ Define command line options."""
