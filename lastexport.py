@@ -61,8 +61,14 @@ def connect_server(server, username, startpage, sleep_func=time.sleep):
                     page=startpage,
                     limit=50)
     else:
-        sys.exit("No config exist for this server, valid servers are: last.fm, libre.fm")
-
+        if server[:7] != 'http://':
+            server = 'http://%s' % server
+        baseurl = server + '/2.0/?'
+        urlvars = dict(method='user.getrecenttracks',
+                    api_key=('lastexport.py-%s' % __version__).ljust(32, '-'),
+                    user=username,
+                    page=startpage,
+                    limit=200)
 
     url = baseurl + urllib.urlencode(urlvars)
     for interval in (1, 5, 10, 62):
