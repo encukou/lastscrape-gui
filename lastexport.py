@@ -88,6 +88,10 @@ def connect_server(server, username, startpage, sleep_func=time.sleep):
 
     #bad hack to fix bad xml
     response = re.sub('\xef\xbf\xbe', '', response)
+    # Unbelievably, some people have ASCII control characters
+    # in their scrobbles: I ran across a \x04 (end of transmission).
+    # Remove all of those except \n and \t
+    response = re.sub('[\0-\x08\x0b-\x1f]', '', response)
     return response
 
 def get_pageinfo(response):
