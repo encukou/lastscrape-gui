@@ -21,7 +21,7 @@ Usage: lastexport.py -u USER [-o OUTFILE] [-p STARTPAGE] [-s SERVER]
 """
 
 import urllib2, urllib, sys, time, re
-from xml.dom import minidom
+import xml.etree.ElementTree as ET
 from optparse import OptionParser
 
 __version__ = '0.0.2'
@@ -92,49 +92,31 @@ def connect_server(server, username, startpage, sleep_func=time.sleep):
 
 def get_pageinfo(response):
     """Check how many pages of tracks the user have."""
-    xmlpage = minidom.parseString(response)
-    totalpages = xmlpage.getElementsByTagName('recenttracks')[0].attributes['totalPages'].value
+    xmlpage = ET.fromstring(response)
+    totalpages = xmlpage.find('recenttracks').attrib.get('totalPages')
     return int(totalpages)
 
 def get_tracklist(response):
     """Read XML page and get a list of tracks and their info."""
-    xmlpage = minidom.parseString(response)
-    tracklist = xmlpage.getElementsByTagName('track')
+    xmlpage = ET.fromstring(response)
+    tracklist = xmlpage.getiterator('track')
     return tracklist
 
 def parse_track(trackelement):
     """Extract info from every track entry and output to list."""
-    track = trackelement.getElementsByTagName
-    try:
-        artistname = track('artist')[0].childNodes[0].data
-    except:
-        artistname = ''
-    try:
-        artistmbid = track('artist')[0].attributes['mbid'].value
-    except:
-        artistmbid = ''
-    try:
-        trackname = track('name')[0].childNodes[0].data
-    except:
-        trackname = ''
-    try:
-        trackmbid = track('mbid')[0].childNodes[0].data
-    except:
-        trackmbid = ''
-    try:
-        albumname = track('album')[0].childNodes[0].data
-    except:
-        albumname = ''
-    try:
-        albummbid = track('album')[0].attributes['mbid'].value
-    except:
-        albummbid = ''
-    try:
-        date = track('date')[0].attributes['uts'].value
-    except:
-        date = ''
+    artistname = trackelement.find('artist').text
+    artistmbid = trackelement.find('artist').get('mbid')
+    trackname = trackelement.find('name').text
+    trackmbid = trackelement.find('mbid').text
+    albumname = trackelement.find('album').text
+    albummbid = trackelement.find('album').get('mbid')
+    date = trackelement.find('date').get('uts')
 
     output = [date, trackname, artistname, albumname, trackmbid, artistmbid, albummbid]
+
+    for i, v in enumerate(output):
+        if v is None:
+            output[i] = ''
 
     return output
 
@@ -188,4 +170,3 @@ if __name__ == "__main__":
     parser = OptionParser()
     username, outfile, startpage, server = get_options(parser)
     main(server, username, startpage, outfile)
-
