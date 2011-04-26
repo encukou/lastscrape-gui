@@ -36,18 +36,27 @@ def get_options(parser):
                       help="Page to start fetching tracks from, default is 1")
     parser.add_option("-s", "--server", dest="server", default="last.fm",
                       help="Server to fetch track info from, default is last.fm")
+    parser.add_option("-t", "--type", dest="infotype", default="scrobbles",
+                      help="Type of information to export, scrobbles|loved|banned, default is scrobbles")
     options, args = parser.parse_args()
 
     if not options.username:
         sys.exit("User name not specified, see --help")
-         
-    return options.username, options.outfile, options.startpage, options.server
 
-def connect_server(server, username, startpage, sleep_func=time.sleep):
+    if options.infotype == "loved":
+        infotype = "lovedtracks"
+    elif options.infotype == "banned":
+        infotype = "bannedtracks"
+    else:
+        infotype = "recenttracks"
+         
+    return options.username, options.outfile, options.startpage, options.server, infotype
+
+def connect_server(server, username, startpage, sleep_func=time.sleep, tracktype='recenttracks'):
     """ Connect to server and get a XML page."""
     if server == "libre.fm":
         baseurl = 'http://alpha.libre.fm/2.0/?'
-        urlvars = dict(method='user.getrecenttracks',
+        urlvars = dict(method='user.get%s' % tracktype,
                     api_key=('lastexport.py-%s' % __version__).ljust(32, '-'),
                     user=username,
                     page=startpage,
@@ -55,7 +64,7 @@ def connect_server(server, username, startpage, sleep_func=time.sleep):
 
     elif server == "last.fm":
         baseurl = 'http://ws.audioscrobbler.com/2.0/?'
-        urlvars = dict(method='user.getrecenttracks',
+        urlvars = dict(method='user.get%s' % tracktype,
                     api_key='e38cc7822bd7476fe4083e36ee69748e',
                     user=username,
                     page=startpage,
@@ -64,7 +73,7 @@ def connect_server(server, username, startpage, sleep_func=time.sleep):
         if server[:7] != 'http://':
             server = 'http://%s' % server
         baseurl = server + '/2.0/?'
-        urlvars = dict(method='user.getrecenttracks',
+        urlvars = dict(method='user.get%s' % tracktype,
                     api_key=('lastexport.py-%s' % __version__).ljust(32, '-'),
                     user=username,
                     page=startpage,
@@ -90,10 +99,10 @@ def connect_server(server, username, startpage, sleep_func=time.sleep):
     response = re.sub('\xef\xbf\xbe', '', response)
     return response
 
-def get_pageinfo(response):
+def get_pageinfo(response, tracktype='recenttracks'):
     """Check how many pages of tracks the user have."""
     xmlpage = ET.fromstring(response)
-    totalpages = xmlpage.find('recenttracks').attrib.get('totalPages')
+    totalpages = xmlpage.find(tracktype).attrib.get('totalPages')
     return int(totalpages)
 
 def get_tracklist(response):
@@ -104,12 +113,24 @@ def get_tracklist(response):
 
 def parse_track(trackelement):
     """Extract info from every track entry and output to list."""
-    artistname = trackelement.find('artist').text
-    artistmbid = trackelement.find('artist').get('mbid')
+    if trackelement.find('artist').getchildren():
+        #artist info is nested in loved/banned tracks xml
+        artistname = trackelement.find('artist').find('name').text
+        artistmbid = trackelement.find('artist').find('mbid').text
+    else:
+        artistname = trackelement.find('artist').text
+        artistmbid = trackelement.find('artist').get('mbid')
+
+    if trackelement.find('album') is None:
+        #no album info for loved/banned tracks
+        albumname = ''
+        albummbid = ''
+    else:
+        albumname = trackelement.find('album').text
+        albummbid = trackelement.find('album').get('mbid')
+
     trackname = trackelement.find('name').text
     trackmbid = trackelement.find('mbid').text
-    albumname = trackelement.find('album').text
-    albummbid = trackelement.find('album').get('mbid')
     date = trackelement.find('date').get('uts')
 
     output = [date, trackname, artistname, albumname, trackmbid, artistmbid, albummbid]
@@ -125,10 +146,10 @@ def write_tracks(tracks, outfileobj):
     for fields in tracks:
         outfileobj.write(("\t".join(fields) + "\n").encode('utf-8'))
 
-def get_tracks(server, username, startpage=1, sleep_func=time.sleep):
+def get_tracks(server, username, startpage=1, sleep_func=time.sleep, tracktype='recenttracks'):
     page = startpage
-    response = connect_server(server, username, page, sleep_func)
-    totalpages = get_pageinfo(response)
+    response = connect_server(server, username, page, sleep_func, tracktype)
+    totalpages = get_pageinfo(response, tracktype)
 
     if startpage > totalpages:
         raise ValueError("First page (%s) is higher than total pages (%s)." % (startpage, totalpages))
@@ -137,7 +158,7 @@ def get_tracks(server, username, startpage=1, sleep_func=time.sleep):
         #Skip connect if on first page, already have that one stored.
 
         if page > startpage:
-            response =  connect_server(server, username, page, sleep_func)
+            response =  connect_server(server, username, page, sleep_func, tracktype)
 
         tracklist = get_tracklist(response)
         tracks = [parse_track(trackelement) for trackelement in tracklist]
@@ -152,7 +173,7 @@ def main(server, username, startpage, outfile):
     page = startpage  # for case of exception
     totalpages = -1  # ditto
     try:
-        for page, totalpages, tracks in get_tracks(server, username, startpage):
+        for page, totalpages, tracks in get_tracks(server, username, startpage, tracktype=infotype):
             print "Got page %s of %s.." % (page, totalpages)
             for track in tracks:
                 trackdict.setdefault(track[0], track)
@@ -168,5 +189,5 @@ def main(server, username, startpage, outfile):
 
 if __name__ == "__main__":
     parser = OptionParser()
-    username, outfile, startpage, server = get_options(parser)
+    username, outfile, startpage, server, infotype = get_options(parser)
     main(server, username, startpage, outfile)
