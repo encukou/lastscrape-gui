@@ -168,15 +168,21 @@ def get_tracks(server, username, startpage=1, sleep_func=time.sleep, tracktype='
         page += 1
         sleep_func(.5)
 
-def main(server, username, startpage, outfile):
+def main(server, username, startpage, outfile, infotype='recenttracks'):
     trackdict = dict()
     page = startpage  # for case of exception
     totalpages = -1  # ditto
+    n = 0
     try:
         for page, totalpages, tracks in get_tracks(server, username, startpage, tracktype=infotype):
             print "Got page %s of %s.." % (page, totalpages)
             for track in tracks:
-                trackdict.setdefault(track[0], track)
+                if infotype == 'recenttracks':
+                    trackdict.setdefault(track[0], track)
+                else:
+                    #Can not use timestamp as key for loved/banned tracks as it's not unique
+                    n += 1
+                    trackdict.setdefault(n, track)
     except ValueError, e:
         exit(e)
     except Exception:
@@ -190,4 +196,4 @@ def main(server, username, startpage, outfile):
 if __name__ == "__main__":
     parser = OptionParser()
     username, outfile, startpage, server, infotype = get_options(parser)
-    main(server, username, startpage, outfile)
+    main(server, username, startpage, outfile, infotype)
