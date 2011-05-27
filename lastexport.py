@@ -161,7 +161,12 @@ def get_tracks(server, username, startpage=1, sleep_func=time.sleep, tracktype='
             response =  connect_server(server, username, page, sleep_func, tracktype)
 
         tracklist = get_tracklist(response)
-        tracks = [parse_track(trackelement) for trackelement in tracklist]
+		
+        tracks = []
+        for trackelement in tracklist:
+            # do not export the currently playing track.
+            if not trackelement.attrib.has_key("nowplaying") or not trackelement.attrib["nowplaying"]:
+                tracks.append(parse_track(trackelement))
 
         yield page, totalpages, tracks
 
