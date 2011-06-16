@@ -6,14 +6,15 @@
   <body>
     <h1>LastScrape GUI (beta)</h1>
     <div>LastScrape is a program that takes your scrobbles from <a href="http://last.fm">last.fm</a> and lets you save them to your computer or push to another service, like <a href="http://libre.fm/">libre.fm</a>.</div>
-    <div style="font-style:italic;">Built on libre.fm's <a href="http://ideas.libre.fm/index.php/Using_lastscrape">lastscrape</a> scripts.</div>
-    <div>This is version <i>0.0.5</i> of the lastscrape GUI.</div>
+    <div style="font-style:italic;">Built on the <a href="https://gitorious.org/fmthings/lasttolibre">lasttolibre</a> script.</div>
+    <div>This is version <i>0.0.6</i> of the lastscrape GUI.</div>
     <h2>Announcements</h2>
+    <div>2011-06-16: Using last.fm API via the lasttolibre project. Development is now done on Gitorious, with a bug tracker at the <a href="http://bugs.foocorp.net/projects/lastscrape-gui/issues">Foocorp's tracker</a>. (Github still works though.) Version 0.0.6 released.</div>
     <div>2011-03-28: Moved to Github. Version 0.0.5 released: fixed a bug caused by a recent last.fm update.</div>
     <h2>Quick Guide</h2>
     <h3>Windows</h3>
     <ol>
-        <li>Lastscrape apparently does not work unless you disable the “Hide real-time listening information” option in your last.fm configuration. So, disable it before scraping.</li>
+        <li>Lastscrape does not work unless you disable the “Hide real-time listening information” option in your last.fm configuration. So, disable it before scraping. In other words, your profile must be public.</li>
         <li>Download the latest Windows package from <a href="https://github.com/encukou/lastscrape-gui/downloads">github</a>.</li>
         <li>Extract it somewhere.</li>
         <li>Run <tt>lastscrape.exe</tt> and follow the instructions.</li>
@@ -33,7 +34,7 @@
                 <dd>Use your package manager, or build from source. Tell me how you did it afterwards, so I can update this page.</dd>
             </dl>
         </li>
-        <li>Lastscrape apparently does not work unless you disable the “Hide real-time listening information” option in your last.fm configuration. So, disable it before scraping.</li>
+        <li>Lastscrape does not work unless you disable the “Hide real-time listening information” option in your last.fm configuration. So, disable it before scraping. In other words, your profile must be public.</li>
         <li>Download <a href="https://github.com/encukou/lastscrape-gui/tarball/master">the source archive</a> from github.</li>
         <li>Extract it somewhere.</li>
         <li>Run <tt>gui.py</tt> and follow the instructions.</li>
@@ -43,12 +44,11 @@
     <div>Just so you know what you should be getting.</div>
     <div><img src="scsh.png" /></div>
     <h2>Get the source!</h2>
-    <div>Run <tt>git clone http://github.com/encukou/lastscrape-gui</tt> to get the source, including the packaging scripts and webpage, if you want those.</div>
-    <div><a href="https://github.com/encukou/lastscrape-gui">Fork me</a> on Github!</div>
+    <div>Run <tt>git clone git://gitorious.org/lastscrape-gui/lastscrape-gui.git</tt> to get the source, including the packaging scripts and webpage, if you want those.</div>
+    <div><a href="https://gitorious.org/lastscrape-gui">Clone the project</a> on Gitorious! (Or, <a href="https://github.com/encukou/lastscrape-gui">fork me</a> on Github)</div>
     <h2>Notes</h2>
     <ul>
         <li>The GUI version is slower than the command-line script when reading a file that was already downloaded. This is because of the cute editable table.</li>
-        <li>It's also slower when scraping, because I changed the time between page scrapes to one second (from 0.5s), as suggested <a href="http://www.last.fm/group/FREE+IS+FREE/forum/119932/_/517695/1#f8994378">here</a>.</li>
     </ul>
   </body>
 </html>

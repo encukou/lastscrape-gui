@@ -31,7 +31,7 @@ import scrobble
 from datetime import datetime
 import collections
 
-__version__ = '0.0.5'
+__version__ = '0.0.6'
 
 def report_error(backtrace):
         errordialog = QtGui.QDialog()
@@ -43,7 +43,7 @@ def report_error(backtrace):
             ))
         textarea = QtGui.QTextEdit()
         backtrace = ("\nPlease report the bug at:\n"
-                + " https://github.com/encukou/lastscrape-gui/issues\n\n"
+                + " http://bugs.foocorp.net/projects/lastscrape-gui/issues/new\n\n"
                 + backtrace
             )
         textarea.setText(backtrace)

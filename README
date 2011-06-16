@@ -22,10 +22,6 @@ This is a beta version.
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-#
-# Beautiful Soup is distributed with this program a separate library.
-# See the corresponding file for license details.
-#
 
 
 Instructions:
@@ -37,12 +33,9 @@ Instructions:
 
 Package contents:
 
-gui.py - the GUI script
-lastscrape.ui - the UI definition
-gobble.py - a slightly edited* libre.fm gobbling script
-lastscrape.py - an edited* version of the LastScrape script
-BeautifulSoup 3.0.7a - just in case: the latest stable version does't work (see http://www.crummy.com/software/BeautifulSoup/3.1-problems.html)
-import.py - the CLI script, the GUI doesn't use this.
+gui.py - The GUI script
+lastscrape.ui - The UI definition
+lastexport.py, libreimport.py, scrobble.py - Backend scripts from the lasttolibre project
 
 setup.py - A setup script. You probably don't want to install a one-shot script like this, but it's used in making the package
 windist.py - Batchfile to make the Windows package. Uses py2exe and 7zip.
@@ -51,19 +44,13 @@ You should also receive a copy of the GNU General Public License from http://www
 
 index.html - The homepage
 scsh.png - A screenshot
+README - This file here
 
-
-Notes:
-
-- The GUI version is slower than the command-line script when reading a file that was already downloaded. This is because of the cute editable table.
-- It's also slower when scraping, because I changed the time between page scrapes to one second (from 0.5s), as suggested here:
-   http://www.last.fm/group/FREE+IS+FREE/forum/119932/_/517695/1#f8994378
-* I needed an extra parameter for the long-running functions: a callback to use instead of time.wait, so the GUI thread wouldn't be blocked.
-   While I was at it, I also made lastscrape.py a bit more robust.
 
 
 Changelog:
 
+0.0.6 - Use lasttolibre, and thus last.fm API, instead of scraping
 0.0.5 - Work around some invalid markup on last.fm
 0.0.4 - Make lastscrape.py more robust (by returning list instead of yielding tracks)
 0.0.3 - Windows packaging fix (uses python 2.5)
