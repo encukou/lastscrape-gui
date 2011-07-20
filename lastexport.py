@@ -24,7 +24,7 @@ import urllib2, urllib, sys, time, re
 import xml.etree.ElementTree as ET
 from optparse import OptionParser
 
-__version__ = '0.0.3'
+__version__ = '0.0.4'
 
 def get_options(parser):
     """ Define command line options."""
