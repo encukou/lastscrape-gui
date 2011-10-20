@@ -64,7 +64,6 @@ class ScrobbleServer(object):
             data += track.get_tuples(i)
             i += 1
         data += [('s', self.session_id)]
-	response = self.subsubmit(data)
         while self.subsubmit(data) != "OK\n":
 	    pass	    	    
 
