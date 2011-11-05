@@ -8,7 +8,7 @@ except ImportError:
 from optparse import OptionParser
 import time
 from urllib import urlencode
-from urllib2 import urlopen
+from urllib2 import urlopen, URLError, HTTPError
 
 
 class ScrobbleException(Exception):
@@ -56,9 +56,24 @@ class ScrobbleServer(object):
             data += track.get_tuples(i)
             i += 1
         data += [('s', self.session_id)]
-        response = urlopen(self.submit_url, urlencode(data)).read()
-        if response != "OK\n":
-            raise ScrobbleException("Server returned: %s" % (response,))
+        last_error = None
+        for timeout in (1, 2, 4, 8, 16, 32):
+            try:
+                response = urlopen(self.submit_url, urlencode(data)).read()
+                response = response.strip()
+            except (URLError, HTTPError), e:
+                last_error = str(e)
+                print 'Scrobbling error: %s, will retry in %ss' % (last_error, timeout)
+            else:
+                if response == 'OK':
+                    break
+                else:
+                    last_error = 'Bad server response: %s' % response
+                    print '%s, will retry in %ss' % (last_error, timeout)
+            time.sleep(timeout)
+        else:
+            raise ScrobbleException('Cannot scrobble after multiple retries. Last error: %s' % last_error)
+
         self.post_data = []
         sleep_func(1)
 

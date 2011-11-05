@@ -24,7 +24,7 @@ import urllib2, urllib, sys, time, re
 import xml.etree.ElementTree as ET
 from optparse import OptionParser
 
-__version__ = '0.0.3'
+__version__ = '0.0.4'
 
 def get_options(parser):
     """ Define command line options."""
@@ -165,22 +165,33 @@ def get_tracks(server, username, startpage=1, sleep_func=time.sleep, tracktype='
             response =  connect_server(server, username, page, sleep_func, tracktype)
 
         tracklist = get_tracklist(response)
-        tracks = [parse_track(trackelement) for trackelement in tracklist]
+		
+        tracks = []
+        for trackelement in tracklist:
+            # do not export the currently playing track.
+            if not trackelement.attrib.has_key("nowplaying") or not trackelement.attrib["nowplaying"]:
+                tracks.append(parse_track(trackelement))
 
         yield page, totalpages, tracks
 
         page += 1
         sleep_func(.5)
 
-def main(server, username, startpage, outfile):
+def main(server, username, startpage, outfile, infotype='recenttracks'):
     trackdict = dict()
     page = startpage  # for case of exception
     totalpages = -1  # ditto
+    n = 0
     try:
         for page, totalpages, tracks in get_tracks(server, username, startpage, tracktype=infotype):
             print "Got page %s of %s.." % (page, totalpages)
             for track in tracks:
-                trackdict.setdefault(track[0], track)
+                if infotype == 'recenttracks':
+                    trackdict.setdefault(track[0], track)
+                else:
+                    #Can not use timestamp as key for loved/banned tracks as it's not unique
+                    n += 1
+                    trackdict.setdefault(n, track)
     except ValueError, e:
         exit(e)
     except Exception:
@@ -194,4 +205,4 @@ def main(server, username, startpage, outfile):
 if __name__ == "__main__":
     parser = OptionParser()
     username, outfile, startpage, server, infotype = get_options(parser)
-    main(server, username, startpage, outfile)
+    main(server, username, startpage, outfile, infotype)
