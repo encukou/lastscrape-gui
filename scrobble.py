@@ -70,7 +70,7 @@ class ScrobbleServer(object):
                 else:
                     last_error = 'Bad server response: %s' % response
                     print '%s, will retry in %ss' % (last_error, timeout)
-            time.sleep(timeout)
+            sleep_func(timeout)
         else:
             raise ScrobbleException('Cannot scrobble after multiple retries. Last error: %s' % last_error)
 
