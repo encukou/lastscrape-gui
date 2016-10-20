@@ -9,6 +9,8 @@ from optparse import OptionParser
 import time
 from urllib import urlencode
 from urllib2 import urlopen, URLError, HTTPError
+import socket
+import errno
 
 
 class ScrobbleException(Exception):
@@ -57,13 +59,17 @@ class ScrobbleServer(object):
             i += 1
         data += [('s', self.session_id)]
         last_error = None
-        for timeout in (1, 2, 4, 8, 16, 32):
+        for timeout in (10, 20, 40, 60, 90, 120):
             try:
                 response = urlopen(self.submit_url, urlencode(data)).read()
                 response = response.strip()
             except (URLError, HTTPError), e:
                 last_error = str(e)
                 print 'Scrobbling error: %s, will retry in %ss' % (last_error, timeout)
+            except socket.error as error:
+				if error.errno == errno.WSAECONNRESET:
+					last_error = str(error)
+					print 'Scrobbling error: %s, will retry in %ss' % (last_error, timeout)
             else:
                 if response == 'OK':
                     break
