@@ -37,9 +37,9 @@ def report_error(backtrace):
         errordialog = QtGui.QDialog()
         layout = QtGui.QVBoxLayout(errordialog)
         layout.addWidget(QtGui.QLabel(
-                u"We're sorry, but there was an error.\n"
-                u"If you report it at the adderss given below, "
-                u"maybe it can be fixed.\n"
+                "We're sorry, but there was an error.\n"
+                "If you report it at the adderss given below, "
+                "maybe it can be fixed.\n"
             ))
         textarea = QtGui.QTextEdit()
         backtrace = ("\nPlease report the bug at:\n"
@@ -60,7 +60,7 @@ def errors_reported(func):
     def wrapper(*args, **kwargs):
         try:
             return func(*args, **kwargs)
-        except Exception, e:
+        except Exception as e:
             import traceback
             backtrace = traceback.format_exc(e)
             report_error(backtrace)
@@ -109,8 +109,8 @@ class MainWindow(QtGui.QWidget):
         username = self.txtUsername.text()
         if not username:
             QtGui.QMessageBox.warning(self,
-                                     u"Nag",
-                                     u"Please put in your username")
+                                     "Nag",
+                                     "Please put in your username")
             return
         if self.worker: return
         self.cancel_loads()
@@ -132,7 +132,7 @@ class MainWindow(QtGui.QWidget):
         self.twTabs.setCurrentWidget(self.tabCleanup)
         self.bpLoad.hide()
         self.saveToFile()
-        self.lblCleanupStatus.setText(u"Done? Let's find them a new home.")
+        self.lblCleanupStatus.setText("Done? Let's find them a new home.")
     def worker_killed(self):
         self.worker = None
         self.enableTabs(True, False, False, False)
@@ -182,7 +182,7 @@ class MainWindow(QtGui.QWidget):
 
     def saveToFile(self):
         filename = self.txtFilename.text()
-        print 'Saving to %s' % self.txtFilename.text()
+        print('Saving to %s' % self.txtFilename.text())
         with open(filename, 'w') as outfile:
             lastexport.write_tracks(self.scrobbles.tracklist, outfile)
         self.twTabs.setCurrentWidget(self.tabPush)
@@ -193,18 +193,18 @@ class MainWindow(QtGui.QWidget):
         if args: return
         if self.uploader: return
         try:
-            server = unicode(self.cbServer.currentText())
-            username = unicode(self.txtLibreUsername.text()).replace(' ','+')
-            password = unicode(self.txtLibrePassword.text())
+            server = str(self.cbServer.currentText())
+            username = str(self.txtLibreUsername.text()).replace(' ','+')
+            password = str(self.txtLibrePassword.text())
             scrobbler = scrobble.ScrobbleServer(
                     server_name = server,
                     username = username,
                     password = password,
                     client_code = 'imp',
                 )
-        except Exception, e:
-            QtGui.QMessageBox.warning(self, u"Oops", u"Couldn't connect to the "
-                u"server. Please check your username and password.\n\n" + 
+        except Exception as e:
+            QtGui.QMessageBox.warning(self, "Oops", "Couldn't connect to the "
+                "server. Please check your username and password.\n\n" + 
                 str(e)[:256])
             return
         self.uploader = uploader = PushThread(scrobbler, self.scrobbles.tracklist)
@@ -222,13 +222,13 @@ class MainWindow(QtGui.QWidget):
     def uploader_progress(self, track):
         num = self.pgUpload.value() + 1
         self.pgUpload.setValue(num)
-        self.lblUploadProgress.setText(u"%d tracks pushed!" % num)
+        self.lblUploadProgress.setText("%d tracks pushed!" % num)
     def uploader_done(self):
         self.uploader = None
         self.enableTabs()
         self.pgUpload.hide()
-        QtGui.QMessageBox.information(self, u"Done!", u"They've all been "
-                u"uploaded! Thanks for your time.")
+        QtGui.QMessageBox.information(self, "Done!", "They've all been "
+                "uploaded! Thanks for your time.")
         self.scrobbles.clear()
     def uploader_killed(self):
         self.uploader = None
@@ -247,7 +247,7 @@ class MainWindow(QtGui.QWidget):
             (self.scrobbles.rowCount(), niceDate))
 
 class TracksModel(QtCore.QAbstractTableModel):
-    columntitles = u"Time, Track name, Artist name, Album name, Track MBID, Artist MBID, Album MBID".split(',')
+    columntitles = "Time, Track name, Artist name, Album name, Track MBID, Artist MBID, Album MBID".split(',')
 
     def __init__(self):
         QtCore.QAbstractTableModel.__init__(self)
@@ -263,20 +263,20 @@ class TracksModel(QtCore.QAbstractTableModel):
         return len(self.columntitles)
 
     def data(self, index, role = Qt.DisplayRole):
-        if not index.isValid(): return QtCore.QVariant()
-        if index.parent().isValid(): return QtCore.QVariant()
+        if not index.isValid(): return None
+        if index.parent().isValid(): return None
         if role not in (Qt.DisplayRole, Qt.EditRole):
-            return QtCore.QVariant()
+            return None
         row = self.tracklist[index.row()]
         data = row[index.column()]
         if index.column() == 0:
-            return QtCore.QVariant(QtCore.QDateTime.fromTime_t(int(data)))
-        return QtCore.QVariant(data)
+            return QtCore.QDateTime.fromTime_t(int(data))
+        return data
 
     def headerData(self, section, orientation, role=Qt.DisplayRole):
-        if orientation != Qt.Horizontal: return QtCore.QVariant()
-        if role != Qt.DisplayRole: return QtCore.QVariant()
-        return QtCore.QVariant(self.columntitles[section].strip())
+        if orientation != Qt.Horizontal: return None
+        if role != Qt.DisplayRole: return None
+        return self.columntitles[section].strip()
 
     def setData(self, index, data, role=Qt.EditRole):
         if not index.isValid(): return False
@@ -286,9 +286,9 @@ class TracksModel(QtCore.QAbstractTableModel):
         column = index.column()
         track = self.tracklist[row]
         if column == 0:
-            val = unicode(data.toDateTime().toTime_t())
+            val = str(data.toDateTime().toTime_t())
         else:
-            val = unicode(data.toString())
+            val = str(data.toString())
         if val:
             track[column] = val
             self.emit(QtCore.SIGNAL('dataChanged(QModelIndex,QModelIndex)'),
@@ -307,10 +307,10 @@ class TracksModel(QtCore.QAbstractTableModel):
         tracks = []
         for track in tracks_in:
             if len(track) != len(self.columntitles):
-                print track
+                print(track)
                 raise AssertionError("%s items of information in track is not %s" % (len(track), len(self.columntitles)))
             if track[0] in self.dateset:
-                print "Duplicate track: %s" % (track,)
+                print("Duplicate track: %s" % (track,))
             else:
                 tracks.append(track)
                 self.dateset.add(track[2])
@@ -344,7 +344,7 @@ class ScraperThread(QtCore.QThread):
                     sleep_func=lambda s: self.msleep(int(s * 1000)),
                 ):
                 self.emit(QtCore.SIGNAL("freshTracks"), tracks)
-        except Exception, e:
+        except Exception as e:
             import traceback
             backtrace = traceback.format_exc(e)
             self.emit(QtCore.SIGNAL("error"), backtrace)
@@ -364,7 +364,7 @@ class PushThread(QtCore.QThread):
                 self.scrobbler.add_track(scrobble.ScrobbleTrack(timestamp, trackname, artistname, albumname, trackmbid))
                 self.emit(QtCore.SIGNAL("progress"), (timestamp, trackname, artistname, albumname, trackmbid))
             self.scrobbler.submit(sleep_func=lambda s: self.msleep(int(s * 1000)))
-        except Exception, e:
+        except Exception as e:
             import traceback
             backtrace = traceback.format_exc(e)
             self.emit(QtCore.SIGNAL("error"), backtrace)

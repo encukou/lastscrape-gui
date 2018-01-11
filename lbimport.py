@@ -20,7 +20,7 @@ Usage: lbimport.py --user=Username --type=loved --file=mylovedtracks.txt [--serv
 
 '''
 
-import json, sys, os, urllib, urllib2, hashlib, getpass, time
+import json, sys, os, urllib.request, urllib.parse, urllib.error, urllib.request, urllib.error, urllib.parse, hashlib, getpass, time
 from optparse import OptionParser
 
 def get_options(parser):
@@ -56,13 +56,13 @@ def auth(fmserver, user, password):
     passmd5 = hashlib.md5(password).hexdigest()
     token = hashlib.md5(user+passmd5).hexdigest()
     getdata = dict(method='auth.getMobileSession', username=user, authToken=token, format='json')
-    req = fmserver + '/2.0/?' + urllib.urlencode(getdata)
-    response = urllib2.urlopen(req)
+    req = fmserver + '/2.0/?' + urllib.parse.urlencode(getdata)
+    response = urllib.request.urlopen(req)
     try:
         jsonresponse = json.load(response)
         sessionkey = jsonresponse['session']['key']
     except:
-        print jsonresponse
+        print(jsonresponse)
         sys.exit(1)
 
     return sessionkey
@@ -81,8 +81,8 @@ def submit(fmserver, infotype, trackartist, tracktitle, sessionkey):
         sys.exit('invalid method')
 
     postdata = dict(method=libremethod, artist=trackartist, track=tracktitle, sk=sessionkey, format='json')
-    req = urllib2.Request(fmserver + '/2.0/', urllib.urlencode(postdata))
-    response = urllib2.urlopen(req)
+    req = urllib.request.Request(fmserver + '/2.0/', urllib.parse.urlencode(postdata))
+    response = urllib.request.urlopen(req)
     
     try:
         jsonresponse = json.load(response)
@@ -102,9 +102,9 @@ def main(server, username, infile, infotype):
         n += 1
         timestamp, track, artist, album, trackmbid, artistmbid, albummbid = line.strip("\n").split("\t")
         if submit(server, infotype, artist, track, sessionkey):
-            print "%d: %s %s - %s" % (n, infotype, artist, track)
+            print("%d: %s %s - %s" % (n, infotype, artist, track))
         else:
-            print "FAILED: %s - %s" % (artist, track)
+            print("FAILED: %s - %s" % (artist, track))
         time.sleep(0.5)
  
 if __name__ == '__main__':

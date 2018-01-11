@@ -7,8 +7,9 @@ except ImportError:
     md5hash = md5.new
 from optparse import OptionParser
 import time
-from urllib import urlencode
-from urllib2 import urlopen, URLError, HTTPError
+from urllib.parse import urlencode
+from urllib.request import urlopen
+from urllib.error import URLError, HTTPError
 
 
 class ScrobbleException(Exception):
@@ -61,15 +62,15 @@ class ScrobbleServer(object):
             try:
                 response = urlopen(self.submit_url, urlencode(data)).read()
                 response = response.strip()
-            except (URLError, HTTPError), e:
+            except (URLError, HTTPError) as e:
                 last_error = str(e)
-                print 'Scrobbling error: %s, will retry in %ss' % (last_error, timeout)
+                print('Scrobbling error: %s, will retry in %ss' % (last_error, timeout))
             else:
                 if response == 'OK':
                     break
                 else:
                     last_error = 'Bad server response: %s' % response
-                    print '%s, will retry in %ss' % (last_error, timeout)
+                    print('%s, will retry in %ss' % (last_error, timeout))
             sleep_func(timeout)
         else:
             raise ScrobbleException('Cannot scrobble after multiple retries. Last error: %s' % last_error)
