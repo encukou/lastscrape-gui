@@ -19,8 +19,8 @@
 Script for exporting tracks through audioscrobbler API.
 Usage: lastexport.py -u USER [-o OUTFILE] [-p STARTPAGE] [-s SERVER]
 """
-
-import urllib2, urllib, sys, time, re
+import pdb
+import urllib.request, urllib.error, urllib.parse, urllib.request, urllib.parse, urllib.error, sys, time, re
 import xml.etree.ElementTree as ET
 from optparse import OptionParser
 
@@ -79,24 +79,24 @@ def connect_server(server, username, startpage, sleep_func=time.sleep, tracktype
                     page=startpage,
                     limit=200)
 
-    url = baseurl + urllib.urlencode(urlvars)
+    url = baseurl + urllib.parse.urlencode(urlvars)
     for interval in (1, 5, 10, 62):
         try:
-            f = urllib2.urlopen(url)
+            f = urllib.request.urlopen(url)
             break
-        except Exception, e:
+        except Exception as e:
             last_exc = e
-            print "Exception occured, retrying in %ds: %s" % (interval, e)
+            print("Exception occured, retrying in %ds: %s" % (interval, e))
             sleep_func(interval)
     else:
-        print "Failed to open page %s" % urlvars['page']
+        print("Failed to open page %s" % urlvars['page'])
         raise last_exc
 
     response = f.read()
     f.close()
 
     #bad hack to fix bad xml
-    response = re.sub('\xef\xbf\xbe', '', response)
+    response = re.sub('\xef\xbf\xbe', '', response.decode())
     # Unbelievably, some people have ASCII control characters
     # in their scrobbles: I ran across a \x04 (end of transmission).
     # Remove all of those except \n and \t
@@ -147,8 +147,9 @@ def parse_track(trackelement):
 
 def write_tracks(tracks, outfileobj):
     """Write tracks to an open file"""
+
     for fields in tracks:
-        outfileobj.write(("\t".join(fields) + "\n").encode('utf-8'))
+        outfileobj.write("\t".join(fields) + "\n")
 
 def get_tracks(server, username, startpage=1, sleep_func=time.sleep, tracktype='recenttracks'):
     page = startpage
@@ -169,7 +170,7 @@ def get_tracks(server, username, startpage=1, sleep_func=time.sleep, tracktype='
         tracks = []
         for trackelement in tracklist:
             # do not export the currently playing track.
-            if not trackelement.attrib.has_key("nowplaying") or not trackelement.attrib["nowplaying"]:
+            if "nowplaying" not in trackelement.attrib or not trackelement.attrib["nowplaying"]:
                 tracks.append(parse_track(trackelement))
 
         yield page, totalpages, tracks
@@ -184,7 +185,7 @@ def main(server, username, startpage, outfile, infotype='recenttracks'):
     n = 0
     try:
         for page, totalpages, tracks in get_tracks(server, username, startpage, tracktype=infotype):
-            print "Got page %s of %s.." % (page, totalpages)
+            print("Got page %s of %s.." % (page, totalpages))
             for track in tracks:
                 if infotype == 'recenttracks':
                     trackdict.setdefault(track[0], track)
@@ -192,15 +193,15 @@ def main(server, username, startpage, outfile, infotype='recenttracks'):
                     #Can not use timestamp as key for loved/banned tracks as it's not unique
                     n += 1
                     trackdict.setdefault(n, track)
-    except ValueError, e:
+    except ValueError as e:
         exit(e)
     except Exception:
         raise
     finally:
         with open(outfile, 'a') as outfileobj:
-            tracks = sorted(trackdict.values(), reverse=True)
+            tracks = sorted(list(trackdict.values()), reverse=True)
             write_tracks(tracks, outfileobj)
-            print "Wrote page %s-%s of %s to file %s" % (startpage, page, totalpages, outfile)
+            print("Wrote page %s-%s of %s to file %s" % (startpage, page, totalpages, outfile))
 
 if __name__ == "__main__":
     parser = OptionParser()
