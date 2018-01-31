@@ -1,22 +1,22 @@
-#modified version of old gobble.py
 try:
     import hashlib
     md5hash = hashlib.md5
 except ImportError:
     import md5
     md5hash = md5.new
+
 from optparse import OptionParser
 import time
 
 import socket
 import errno
+
 from urllib.parse import urlencode
 from urllib.request import urlopen
 from urllib.error import URLError, HTTPError
 
 
 class ScrobbleException(Exception):
-
     pass
 
 
@@ -69,9 +69,9 @@ class ScrobbleServer(object):
                 last_error = str(e)
                 print('Scrobbling error: %s, will retry in %ss' % (last_error, timeout))
             except socket.error as error:
-				        if error.errno == errno.WSAECONNRESET:
-					          last_error = str(error)
-					          print('Scrobbling error: %s, will retry in %ss' % (last_error, timeout))
+                        if error.errno == errno.WSAECONNRESET:
+                              last_error = str(error)
+                              print('Scrobbling error: %s, will retry in %ss' % (last_error, timeout))
 
             else:
                 if response == 'OK':
