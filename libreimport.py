@@ -25,10 +25,10 @@ sys.path.append(os.path.join(sys.path[0], '../scripts'))
 
 from datetime import datetime
 import getpass
-from scrobble import get_parser, ScrobbleServer, ScrobbleTrack
+from .scrobble import get_parser, ScrobbleServer, ScrobbleTrack
 import time
-from urllib import urlencode
-from urllib2 import urlopen
+from urllib.parse import urlencode
+from urllib.request import urlopen
 
 
 if __name__ == '__main__':
@@ -49,5 +49,5 @@ if __name__ == '__main__':
         timestamp, track, artist, album, trackmbid, artistmbid, albummbid = line.strip("\n").split("\t")
         #submission protocol doesnt specify artist/album mbid, so we dont send them
         scrobbler.add_track(ScrobbleTrack(timestamp, track, artist, album, trackmbid))
-        print "%d: Adding to post %s playing %s" % (n, artist, track)
+        print("%d: Adding to post %s playing %s" % (n, artist, track))
     scrobbler.submit()

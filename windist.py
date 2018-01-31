@@ -2,7 +2,7 @@ import subprocess
 import os
 import sys
 import shutil
-from gui import __version__
+from .gui import __version__
 
 dist_dir = 'lastscrape-win32-'+__version__
 zip_name = dist_dir+'.zip'
