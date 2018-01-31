@@ -1,10 +1,3 @@
-
-== MAINTAINER WANTED ==
-
-I no longer have time to maintain this project, and in particular
-I can't build the Windows distribution.
-If you would like to take over, let me know.
-
 #
 # Lastscrape GUI -- GUI for Lascscrape
 # Copyright (C) 2009-2011 Petr Viktorin
@@ -26,11 +19,11 @@ If you would like to take over, let me know.
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-
+Compatible with Python 3.5
 
 Instructions:
 
-1. Install PyQt4
+1. Install PyQt4 (`pip3.5 install PyQt4`)
 2. Run gui.py
 3. Report how it went
 
