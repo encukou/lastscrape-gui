@@ -43,7 +43,7 @@ def report_error(backtrace):
             ))
         textarea = QtGui.QTextEdit()
         backtrace = ("\nPlease report the bug at:\n"
-                + " http://bugs.foocorp.net/projects/lastscrape-gui/issues/new\n\n"
+                + " https://github.com/encukou/lastscrape-gui/issues/new\n\n"
                 + backtrace
             )
         textarea.setText(backtrace)
@@ -156,7 +156,7 @@ class MainWindow(QtGui.QWidget):
         try:
             tracks = []
             for line in infile:
-                track = line.strip('\r\n').decode('UTF-8').split('\t')
+                track = line.strip('\r\n').split('\t')
                 tracks.append( track )
                 if len(tracks)>=250:
                     QtGui.QApplication.processEvents()
@@ -204,7 +204,7 @@ class MainWindow(QtGui.QWidget):
                 )
         except Exception as e:
             QtGui.QMessageBox.warning(self, "Oops", "Couldn't connect to the "
-                "server. Please check your username and password.\n\n" + 
+                "server. Please check your username and password.\n\n" +
                 str(e)[:256])
             return
         self.uploader = uploader = PushThread(scrobbler, self.scrobbles.tracklist)
@@ -377,4 +377,4 @@ def main(*args):
 
 if __name__ == '__main__':
     main(*sys.argv)
- 
+
