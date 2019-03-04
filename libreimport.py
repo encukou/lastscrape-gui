@@ -17,7 +17,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-# 
+#
 
 import os.path
 import sys
@@ -25,7 +25,7 @@ sys.path.append(os.path.join(sys.path[0], '../scripts'))
 
 from datetime import datetime
 import getpass
-from .scrobble import get_parser, ScrobbleServer, ScrobbleTrack
+from scrobble import get_parser, ScrobbleServer, ScrobbleTrack
 import time
 from urllib.parse import urlencode
 from urllib.request import urlopen
