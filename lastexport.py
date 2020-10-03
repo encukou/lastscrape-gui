@@ -14,17 +14,20 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
+# Downloaded from: https://github.com/encukou/lastscrape-gui/blob/master/lastexport.py
+# Does not work with Python2
+#
 
 """
 Script for exporting tracks through audioscrobbler API.
-Usage: lastexport.py -u USER [-o OUTFILE] [-p STARTPAGE] [-s SERVER]
+Usage: lastexport.py -u USER [-o OUTFILE] [-p STARTPAGE] [-s SERVER] [-f FROMUTS] [-z TOUTS]
 """
 import pdb
 import urllib.request, urllib.error, urllib.parse, urllib.request, urllib.parse, urllib.error, sys, time, re
 import xml.etree.ElementTree as ET
 from optparse import OptionParser
 
-__version__ = '0.0.4'
+__version__ = '0.0.5'
 
 def get_options(parser):
     """ Define command line options."""
@@ -34,6 +37,10 @@ def get_options(parser):
                       help="Output file, default is exported_tracks.txt")
     parser.add_option("-p", "--page", dest="startpage", type="int", default="1",
                       help="Page to start fetching tracks from, default is 1")
+    parser.add_option("-f", "--from", dest="fromuts", type="int", default=None,
+                      help="Unix timestamp - only display scrobbles after this time, default is none")
+    parser.add_option("-z", "--to", dest="touts", type="int", default=None,
+                      help="Unix timestamp - only display scrobbles after this time, default is none")
     parser.add_option("-s", "--server", dest="server", default="last.fm",
                       help="Server to fetch track info from, default is last.fm")
     parser.add_option("-t", "--type", dest="infotype", default="scrobbles",
@@ -50,9 +57,9 @@ def get_options(parser):
     else:
         infotype = "recenttracks"
          
-    return options.username, options.outfile, options.startpage, options.server, infotype
+    return options.username, options.outfile, options.startpage, options.fromuts, options.touts, options.server, infotype
 
-def connect_server(server, username, startpage, sleep_func=time.sleep, tracktype='recenttracks'):
+def connect_server(server, username, startpage, fromuts, touts, sleep_func=time.sleep, tracktype='recenttracks'):
     """ Connect to server and get a XML page."""
     if server == "libre.fm":
         baseurl = 'http://alpha.libre.fm/2.0/?'
@@ -69,6 +76,11 @@ def connect_server(server, username, startpage, sleep_func=time.sleep, tracktype
                     user=username,
                     page=startpage,
                     limit=50)
+        if fromuts:
+            urlvars['from'] = fromuts
+        if touts:
+            urlvars['to'] = touts
+            
     else:
         if server[:7] != 'http://':
             server = 'http://%s' % server
@@ -151,9 +163,9 @@ def write_tracks(tracks, outfileobj):
     for fields in tracks:
         outfileobj.write("\t".join(fields) + "\n")
 
-def get_tracks(server, username, startpage=1, sleep_func=time.sleep, tracktype='recenttracks'):
+def get_tracks(server, username, fromuts, touts, startpage=1, sleep_func=time.sleep, tracktype='recenttracks'):
     page = startpage
-    response = connect_server(server, username, page, sleep_func, tracktype)
+    response = connect_server(server, username, page, fromuts, touts, sleep_func, tracktype)
     totalpages = get_pageinfo(response, tracktype)
 
     if startpage > totalpages:
@@ -163,7 +175,7 @@ def get_tracks(server, username, startpage=1, sleep_func=time.sleep, tracktype='
         #Skip connect if on first page, already have that one stored.
 
         if page > startpage:
-            response =  connect_server(server, username, page, sleep_func, tracktype)
+            response =  connect_server(server, username, page, fromuts, touts, sleep_func, tracktype)
 
         tracklist = get_tracklist(response)
 		
@@ -178,13 +190,13 @@ def get_tracks(server, username, startpage=1, sleep_func=time.sleep, tracktype='
         page += 1
         sleep_func(.5)
 
-def main(server, username, startpage, outfile, infotype='recenttracks'):
+def main(server, username, startpage, fromuts, touts, outfile, infotype='recenttracks'):
     trackdict = dict()
     page = startpage  # for case of exception
     totalpages = -1  # ditto
     n = 0
     try:
-        for page, totalpages, tracks in get_tracks(server, username, startpage, tracktype=infotype):
+        for page, totalpages, tracks in get_tracks(server, username, fromuts, touts, startpage, tracktype=infotype):
             print("Got page %s of %s.." % (page, totalpages))
             for track in tracks:
                 if infotype == 'recenttracks':
@@ -205,5 +217,5 @@ def main(server, username, startpage, outfile, infotype='recenttracks'):
 
 if __name__ == "__main__":
     parser = OptionParser()
-    username, outfile, startpage, server, infotype = get_options(parser)
-    main(server, username, startpage, outfile, infotype)
+    username, outfile, startpage, fromuts, touts, server, infotype = get_options(parser)
+    main(server, username, startpage, fromuts, touts, outfile, infotype)
